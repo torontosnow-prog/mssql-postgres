@@ -1,0 +1,37 @@
+SELECT
+    sch.name AS schema_name,
+    tab.name AS table_name,
+    fk.name AS foreign_key_name,
+
+    col.name AS column_name,
+
+    ref_sch.name AS referenced_schema,
+    ref_tab.name AS referenced_table,
+    ref_col.name AS referenced_column,
+
+    fkc.constraint_column_id
+FROM sys.foreign_key_columns fkc
+JOIN sys.foreign_keys fk
+    ON fkc.constraint_object_id = fk.object_id
+
+JOIN sys.tables tab
+    ON fkc.parent_object_id = tab.object_id
+JOIN sys.schemas sch
+    ON tab.schema_id = sch.schema_id
+JOIN sys.columns col
+    ON fkc.parent_object_id = col.object_id
+   AND fkc.parent_column_id = col.column_id
+
+JOIN sys.tables ref_tab
+    ON fkc.referenced_object_id = ref_tab.object_id
+JOIN sys.schemas ref_sch
+    ON ref_tab.schema_id = ref_sch.schema_id
+JOIN sys.columns ref_col
+    ON fkc.referenced_object_id = ref_col.object_id
+   AND fkc.referenced_column_id = ref_col.column_id
+
+ORDER BY
+    sch.name,
+    tab.name,
+    fk.name,
+    fkc.constraint_column_id;
